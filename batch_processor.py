@@ -3,10 +3,6 @@ import time
 import random
 
 def process_batch(file_path: str, max_retries: int = 5, base_delay: float = 2.0):
-    """
-    Processa um arquivo contendo uma lista de CNPJs, chamando a função run(cnpj)
-    para cada linha, com tratamento de erros e controle de taxa.
-    """
     try:
         with open(file_path, 'r') as f:
             cnpjs = [line.strip() for line in f if line.strip()]
@@ -24,17 +20,17 @@ def process_batch(file_path: str, max_retries: int = 5, base_delay: float = 2.0)
         for attempt in range(1, max_retries + 1):
             try:
                 run(cnpj)
-                break  # sucesso → sai do loop de retry
+                break 
             except Exception as e:
-                if "429" in str(e):  # erro de limite de requisições
+                if "429" in str(e): 
                     wait = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 1)
-                    print(f"⚠️  Erro 429 detectado. Tentativa {attempt}/{max_retries}. Aguardando {wait:.1f}s...")
+                    print(f"Erro 429 detectado. Tentativa {attempt}/{max_retries}. Aguardando {wait:.1f}s...")
                     time.sleep(wait)
                 else:
-                    print(f"❌ Falha ao processar {cnpj}: {e}")
+                    print(f"Falha ao processar {cnpj}: {e}")
                     break
         else:
-            print(f"⛔ Não foi possível processar {cnpj} após {max_retries} tentativas.")
+            print(f"Não foi possível processar {cnpj} após {max_retries} tentativas.")
 
         # pequena pausa entre CNPJs para evitar sobrecarga
         time.sleep(random.uniform(1.5, 3.5))
